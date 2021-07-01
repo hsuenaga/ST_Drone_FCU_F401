@@ -5,9 +5,24 @@
 #include "quaternion.h"
 #include "ahrs.h"
 #include "motor.h"
+#include "rc.h"
 
+/*
+ * XXX:
+ * MIN_THR is often compared with gTHR.
+ *
+ * But, gTHR is *raw input* value from remote controller. The value will be
+ * transformed to PWM value(motor_thr) lator. So, it seems MIN_THR should
+ * control *transformed value* that will send to motor(motor_thr).
+ *
+ * But, the code compares gTHR with MIN_THR. Why???
+ */
 #ifdef MOTOR_DC
+#ifdef REMOCON_BLE
+  #define MIN_THR		20	/* BLE Remocon sends gTHR 0 - 388 */
+#else
   #define MIN_THR              200              /* DC motor configuration, it was 200 */
+#endif
 #endif
 #ifdef MOTOR_ESC
   #define MIN_THR              20                /* External ESC configuration */
