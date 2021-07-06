@@ -1252,6 +1252,11 @@ static void Init_BlueNRG_Custom_Services(void)
      PRINTF("\r\nError while adding HW Service W2ST\r\n");
   }
 
+#if 0
+  /*
+   * XXX: console and config service is already registered in
+   *      BlueNRG_Init()
+   */
   ret = Add_ConsoleW2ST_Service();
   if(ret == BLE_STATUS_SUCCESS) {
      PRINTF("Console Service W2ST added successfully\r\n");
@@ -1265,6 +1270,7 @@ static void Init_BlueNRG_Custom_Services(void)
   } else {
      PRINTF("\r\nError while adding Config Service W2ST\r\n");
   }
+#endif 
 }
 
 /**
