@@ -455,7 +455,7 @@ tBleStatus Add_HWServW2ST_Service(void)
 
   COPY_ACC_GYRO_MAG_W2ST_CHAR_UUID(uuid);
   ret =  aci_gatt_add_char(HWServW2STHandle, UUID_TYPE_128, uuid, 2+3*3*2,
-                           CHAR_PROP_NOTIFY,
+                           CHAR_PROP_NOTIFY | CHAR_PROP_READ,
                            ATTR_PERMISSION_NONE,
                            GATT_NOTIFY_READ_REQ_AND_WAIT_FOR_APPL_RESP,
                            16, 0, &AccGyroMagCharHandle);
