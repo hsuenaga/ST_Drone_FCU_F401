@@ -100,7 +100,9 @@ static void DisableHWFeatures(void);
 #define ACI_GATT_UPDATE_CHAR_VALUE safe_aci_gatt_update_char_value
 static int32_t breath;
 
-TargetFeatures_t TargetBoardFeatures;
+TargetFeatures_t TargetBoardFeatures = {
+		.bnrg_expansion_board = IDB05A1,
+};
 
 
 /* @brief  Update the value of a characteristic avoiding (for a short time) to
@@ -166,6 +168,7 @@ tBleStatus Add_ConfigW2ST_Service(void)
   if (ret != BLE_STATUS_SUCCESS) {
     goto fail;
   }
+  PRINTF("ConfigCharHandle: %d\r\n", ConfigCharHandle);
 
   return BLE_STATUS_SUCCESS;
 
@@ -203,6 +206,7 @@ tBleStatus Add_ConsoleW2ST_Service(void)
   if (ret != BLE_STATUS_SUCCESS) {
     goto fail;
   }
+  PRINTF("TermCharHandle: %d\r\n", TermCharHandle);
 
   COPY_STDERR_CHAR_UUID(uuid);
   ret =  aci_gatt_add_char(ConsoleW2STHandle, UUID_TYPE_128, uuid, W2ST_CONSOLE_MAX_CHAR_LEN,
@@ -214,6 +218,7 @@ tBleStatus Add_ConsoleW2ST_Service(void)
   if (ret != BLE_STATUS_SUCCESS) {
      goto fail;
   }
+  PRINTF("StdErrCharHandle: %d\r\n", StdErrCharHandle);
 
   return BLE_STATUS_SUCCESS;
 
@@ -452,6 +457,7 @@ tBleStatus Add_HWServW2ST_Service(void)
   if (ret != BLE_STATUS_SUCCESS) {
     goto fail;
   }
+  PRINTF("EnvironmentCharHandle: %d\r\n", EnvironmentalCharHandle);
 
   COPY_ACC_GYRO_MAG_W2ST_CHAR_UUID(uuid);
   ret =  aci_gatt_add_char(HWServW2STHandle, UUID_TYPE_128, uuid, 2+3*3*2,
@@ -463,6 +469,7 @@ tBleStatus Add_HWServW2ST_Service(void)
   if (ret != BLE_STATUS_SUCCESS) {
     goto fail;
   }
+  PRINTF("AccGyroMagCharHandle: %d\r\n", AccGyroMagCharHandle);
 
   COPY_ACC_EVENT_W2ST_CHAR_UUID(uuid);
   ret =  aci_gatt_add_char(HWServW2STHandle, UUID_TYPE_128, uuid, 2+2,
@@ -474,6 +481,7 @@ tBleStatus Add_HWServW2ST_Service(void)
   if (ret != BLE_STATUS_SUCCESS) {
     goto fail;
   }
+  PRINTF("AccEventCharHandle: %d\r\n", AccEventCharHandle);
 
   COPY_ARMING_W2ST_CHAR_UUID(uuid);
   ret =  aci_gatt_add_char(HWServW2STHandle, UUID_TYPE_128, uuid, 2+1,
@@ -485,6 +493,7 @@ tBleStatus Add_HWServW2ST_Service(void)
   if (ret != BLE_STATUS_SUCCESS) {
     goto fail;
   }
+  PRINTF("ArmingCharHandle: %d\r\n", ArmingCharHandle);
 
 #ifdef STM32_SENSORTILE
   if(TargetBoardFeatures.HandleGGComponent){
@@ -513,7 +522,7 @@ tBleStatus Add_HWServW2ST_Service(void)
   if (ret != BLE_STATUS_SUCCESS) {
     goto fail;
   }
-	
+  PRINTF("MaxCharHandle: %d\r\n", MaxCharHandle);
 
   return BLE_STATUS_SUCCESS;
 
@@ -812,6 +821,15 @@ void Read_Request_CB(uint16_t handle)
  */
 void Attribute_Modified_CB(uint16_t attr_handle, uint8_t * att_data, uint8_t data_length) 
 {
+#if 0
+  int i;
+  PRINTF("Attribute_Modified: handle=%d, data_length=%d,", attr_handle, data_length);
+  for (i = 0; i < data_length; i++) {
+	  PRINTF(" %d", att_data[i]);
+  }
+  PRINTF("\r\n");
+#endif
+
   if(attr_handle == ConfigCharHandle + 2) 
   {
     ;/* do nothing... only for removing the message "Notification UNKNOW handle" */
@@ -881,27 +899,25 @@ void Attribute_Modified_CB(uint16_t attr_handle, uint8_t * att_data, uint8_t dat
   }  
   else if (attr_handle == MaxCharHandle+ 1)
   {
-     
-     joydata[0] = att_data[1];
-     joydata[1] = att_data[2];
-     joydata[2] = att_data[3];
-     joydata[3] = att_data[4];
-     joydata[4] = att_data[5];
-     joydata[5] = att_data[6];
-     joydata[6] = att_data[7];
-     joydata[7] = att_data[8];
-
+     joydata[0] = 0;				// not used (unknown padding)
+     joydata[1] = att_data[0] = 0;	// not used (unknown padding)
+     joydata[2] = att_data[1];		// rudder: 128 +- 64
+     joydata[3] = att_data[2];		// throttle: 0...26
+     joydata[4] = att_data[3];		// aileron: 128 +- 64
+     joydata[5] = att_data[4];		// elevator: 128 +- 64
+     joydata[6] = att_data[5] = 0;	// not used (seek bar)
+     joydata[7] = att_data[6];		// extra status
   } 
   else 
   {
     if(W2ST_CHECK_CONNECTION(W2ST_CONNECT_STD_ERR))
     {
-      BytesToWrite =sprintf((char *)BufferToWrite, "Notification UNKNOW handle\r\n");
+      BytesToWrite =sprintf((char *)BufferToWrite, "Notification UNKNOWN handle %d\r\n", attr_handle);
       Stderr_Update(BufferToWrite,BytesToWrite);
     } 
     else 
     {
-      PRINTF("Notification UNKNOW handle\r\n");
+      PRINTF("Notification UNKNOWN handle %d\r\n", attr_handle);
     }
   }
 }
