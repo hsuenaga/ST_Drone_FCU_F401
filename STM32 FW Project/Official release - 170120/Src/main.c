@@ -478,9 +478,6 @@ int32_t BytesToWrite;
 
           if (connected){
             rc_connection_flag = 1;                       /* BLE Remocon connected flag for enabling motor output */
-            SendMotionData();
-            SendBattEnvData();
-            SendArmingData();            
           }
           else{
             rc_connection_flag = 0;
@@ -585,6 +582,11 @@ int32_t BytesToWrite;
         {
           if (mytimcnt%50 == 0)
             BSP_LED_Toggle(LED2);
+        }
+        if (connected && mytimcnt%20 == 0) {
+        	SendMotionData();
+        	SendBattEnvData();
+        	SendArmingData();
         }
     }
   
