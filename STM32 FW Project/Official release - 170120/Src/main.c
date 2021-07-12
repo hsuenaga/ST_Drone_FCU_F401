@@ -136,6 +136,7 @@ void BlueNRG_Init(void);
 //tBleStatus Add_ConsoleW2ST_Service(void);
 //tBleStatus Add_ConfigW2ST_Service(void);
 static void Init_BlueNRG_Custom_Services(void);
+static void DumpBlueNRG_Handles(void);
 static void SendMotionData(void);
 static void SendBattEnvData(void);
 static void SendArmingData(void);
@@ -369,7 +370,7 @@ int32_t BytesToWrite;
   BlueNRG_Init();
   /* Initialize the BlueNRG Custom services */
   Init_BlueNRG_Custom_Services();
-  
+  DumpBlueNRG_Handles();
   
   /* Read initial value of Pressure and Temperature for Altitude estimation */ 
   BSP_PRESSURE_Get_Press(LPS22HB_P_0_handle, &press_zero_level);      /* Read the Pressure level when arming (0m reference) for altitude calculation */
@@ -1273,6 +1274,15 @@ static void Init_BlueNRG_Custom_Services(void)
      PRINTF("\r\nError while adding Config Service W2ST\r\n");
   }
 #endif 
+}
+
+static void DumpBlueNRG_Handles(void)
+{
+	  PRINTF("GAP service_handle: %d\r\n", service_handle);
+	  PRINTF("GAP dev_name_char_handle: %d\r\n", dev_name_char_handle);
+	  PRINTF("GAP appearance_char_handle: %d\r\n", appearance_char_handle);
+
+	  DumpBlueNRG_CustomHandles();
 }
 
 /**

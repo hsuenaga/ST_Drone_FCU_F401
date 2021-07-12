@@ -87,6 +87,7 @@ extern tBleStatus Term_Update(uint8_t *data,uint8_t length);
 extern tBleStatus Add_ConfigW2ST_Service(void);
 extern tBleStatus Config_Notify(uint32_t Feature,uint8_t Command,uint8_t val);
 
+extern void       DumpBlueNRG_CustomHandles(void);
 extern void       setConnectable(void);
 extern void       HCI_Event_CB(void *pckt);
 

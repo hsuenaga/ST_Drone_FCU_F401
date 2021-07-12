@@ -168,7 +168,6 @@ tBleStatus Add_ConfigW2ST_Service(void)
   if (ret != BLE_STATUS_SUCCESS) {
     goto fail;
   }
-  PRINTF("ConfigCharHandle: %d\r\n", ConfigCharHandle);
 
   return BLE_STATUS_SUCCESS;
 
@@ -206,7 +205,6 @@ tBleStatus Add_ConsoleW2ST_Service(void)
   if (ret != BLE_STATUS_SUCCESS) {
     goto fail;
   }
-  PRINTF("TermCharHandle: %d\r\n", TermCharHandle);
 
   COPY_STDERR_CHAR_UUID(uuid);
   ret =  aci_gatt_add_char(ConsoleW2STHandle, UUID_TYPE_128, uuid, W2ST_CONSOLE_MAX_CHAR_LEN,
@@ -218,7 +216,6 @@ tBleStatus Add_ConsoleW2ST_Service(void)
   if (ret != BLE_STATUS_SUCCESS) {
      goto fail;
   }
-  PRINTF("StdErrCharHandle: %d\r\n", StdErrCharHandle);
 
   return BLE_STATUS_SUCCESS;
 
@@ -457,7 +454,6 @@ tBleStatus Add_HWServW2ST_Service(void)
   if (ret != BLE_STATUS_SUCCESS) {
     goto fail;
   }
-  PRINTF("EnvironmentCharHandle: %d\r\n", EnvironmentalCharHandle);
 
   COPY_ACC_GYRO_MAG_W2ST_CHAR_UUID(uuid);
   ret =  aci_gatt_add_char(HWServW2STHandle, UUID_TYPE_128, uuid, 2+3*3*2,
@@ -469,7 +465,6 @@ tBleStatus Add_HWServW2ST_Service(void)
   if (ret != BLE_STATUS_SUCCESS) {
     goto fail;
   }
-  PRINTF("AccGyroMagCharHandle: %d\r\n", AccGyroMagCharHandle);
 
   COPY_ACC_EVENT_W2ST_CHAR_UUID(uuid);
   ret =  aci_gatt_add_char(HWServW2STHandle, UUID_TYPE_128, uuid, 2+2,
@@ -481,7 +476,6 @@ tBleStatus Add_HWServW2ST_Service(void)
   if (ret != BLE_STATUS_SUCCESS) {
     goto fail;
   }
-  PRINTF("AccEventCharHandle: %d\r\n", AccEventCharHandle);
 
   COPY_ARMING_W2ST_CHAR_UUID(uuid);
   ret =  aci_gatt_add_char(HWServW2STHandle, UUID_TYPE_128, uuid, 2+1,
@@ -493,7 +487,6 @@ tBleStatus Add_HWServW2ST_Service(void)
   if (ret != BLE_STATUS_SUCCESS) {
     goto fail;
   }
-  PRINTF("ArmingCharHandle: %d\r\n", ArmingCharHandle);
 
 #ifdef STM32_SENSORTILE
   if(TargetBoardFeatures.HandleGGComponent){
@@ -522,7 +515,6 @@ tBleStatus Add_HWServW2ST_Service(void)
   if (ret != BLE_STATUS_SUCCESS) {
     goto fail;
   }
-  PRINTF("MaxCharHandle: %d\r\n", MaxCharHandle);
 
   return BLE_STATUS_SUCCESS;
 
@@ -530,6 +522,21 @@ fail:
   //PRINTF("Error while adding HW's Characteristcs service.\n");
   return BLE_STATUS_ERROR;
 }
+
+void DumpBlueNRG_CustomHandles(void)
+{
+	  PRINTF("EnvironmentCharHandle: %d\r\n", EnvironmentalCharHandle);
+	  PRINTF("AccGyroMagCharHandle: %d\r\n", AccGyroMagCharHandle);
+	  PRINTF("AccEventCharHandle: %d\r\n", AccEventCharHandle);
+	  PRINTF("ArmingCharHandle: %d\r\n", ArmingCharHandle);
+	  PRINTF("MaxCharHandle: %d\r\n", MaxCharHandle);
+
+	  PRINTF("TermCharHandle: %d\r\n", TermCharHandle);
+	  PRINTF("StdErrCharHandle: %d\r\n", StdErrCharHandle);
+
+	  PRINTF("ConfigCharHandle: %d\r\n", ConfigCharHandle);
+}
+
 
 /**
  * @brief  Update acceleration/Gryoscope and Magneto characteristics value
@@ -830,7 +837,24 @@ void Attribute_Modified_CB(uint16_t attr_handle, uint8_t * att_data, uint8_t dat
   PRINTF("\r\n");
 #endif
 
-  if(attr_handle == ConfigCharHandle + 2) 
+  // Reduce noisy logs.
+  switch (attr_handle) {
+  case 0x04: // Service Changed CCCD. Not supported.
+	  return;
+  default:
+	  break;
+  }
+
+  if (attr_handle == EnvironmentalCharHandle + 2) {
+	  if (att_data[0] == 01)
+	  {
+		  W2ST_ON_CONNECTION(W2ST_CONNECT_ENV);
+	  } else if (att_data[0] == 0)
+	  {
+	      W2ST_OFF_CONNECTION(W2ST_CONNECT_ENV);
+	  }
+  }
+  else if(attr_handle == ConfigCharHandle + 2)
   {
     ;/* do nothing... only for removing the message "Notification UNKNOW handle" */
   } 
@@ -869,6 +893,26 @@ void Attribute_Modified_CB(uint16_t attr_handle, uint8_t * att_data, uint8_t dat
     {
       Term_Update(att_data,data_length);
     }
+  }
+  else if (attr_handle == AccGyroMagCharHandle + 2)
+  {
+	  if (att_data[0] == 01)
+	  {
+		  W2ST_ON_CONNECTION(W2ST_CONNECT_ACC_GYRO_MAG);
+	  } else if (att_data[0] == 0)
+	  {
+		  W2ST_OFF_CONNECTION(W2ST_CONNECT_ACC_GYRO_MAG);
+	  }
+  }
+  else if (attr_handle == AccEventCharHandle + 2)
+  {
+	  if (att_data[0] == 01)
+	  {
+		  W2ST_ON_CONNECTION(W2ST_CONNECT_ACC_EVENT);
+	  } else if (att_data[0] == 0)
+	  {
+		  W2ST_OFF_CONNECTION(W2ST_CONNECT_ACC_EVENT);
+	  }
   }
   else if(attr_handle == ArmingCharHandle + 2)
   {
