@@ -1180,7 +1180,7 @@ void BlueNRG_Init(void)
     // Added Jan 10th
     ret = hci_le_set_random_address(bdaddr);
     // Added Jan 10th
-    const char BoardName[7] = {NAME_BLUEMS};
+    const char BoardName[7] = {NAME_DRN};
     // Added Jan 10th
     ret = aci_gatt_update_char_value(service_handle, dev_name_char_handle, 0,
                                        7/*strlen(BoardName)*/, (uint8_t *)BoardName);

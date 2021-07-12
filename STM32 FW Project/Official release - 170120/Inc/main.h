@@ -129,7 +129,7 @@
 /** @defgroup BLE default values
 * @{
 */
-#define NAME_BLUEMS 'D','R','N','1','1','2','0'
+//#define NAME_BLUEMS 'D','R','N','1','1','2','0'
 #define STM32_UUID ((uint32_t *)0x1FFF7A10)
 #define GAP_PERIPHERAL_ROLE_IDB05A1			(0x01)
 #define GAP_BROADCASTER_ROLE_IDB05A1		        (0x02)
