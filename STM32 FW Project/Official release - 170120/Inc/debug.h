@@ -51,7 +51,7 @@
 #ifdef DEBUG
 #include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)
-int myprintf(const char *format, ...);
+int usartPrintf(const char *format, ...);
 int usart_puts(const char *str, int len);
 void initDebug(void);
 #else

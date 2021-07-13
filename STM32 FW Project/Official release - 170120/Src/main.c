@@ -146,7 +146,8 @@ static void SendArmingData(void);
 /* USER CODE BEGIN 0 */
 P_PI_PIDControlTypeDef pid;
 EulerAngleTypeDef euler_rc, euler_ahrs, euler_rc_fil, euler_rc_y_pre[4], euler_rc_x_pre[4];
-AxesRaw_TypeDef acc, gyro, mag, acc_fil_int, gyro_fil_int, mag_fil_int;
+AxesRaw_TypeDef acc, gyro, mag;
+AxesRaw_TypeDef acc_fil_int, gyro_fil_int, mag_fil_int;
 AxesRaw_TypeDef_Float acc_fil, acc_y_pre[4], acc_x_pre[4], acc_ahrs_FIFO[FIFO_Order], acc_FIFO[FIFO_Order], acc_ahrs;
 AxesRaw_TypeDef_Float gyro_fil, gyro_y_pre[4], gyro_x_pre[4], gyro_ahrs_FIFO[FIFO_Order], gyro_FIFO[FIFO_Order], gyro_ahrs;
 AxesRaw_TypeDef_Float mag_fil;
@@ -188,11 +189,11 @@ Gyro_Rad gyro_rad, gyro_degree, gyro_cali_degree;
 MotorControlTypeDef motor_pwm;
 int count1 = 0, count2 = 0;
 AHRS_State_TypeDef ahrs;
-volatile float press, press_zero_level;
-volatile float temperature;
+float press, press_zero_level;
+float temperature;
 
 uint32_t VBAT_Sense;
-volatile float VBAT = 0;
+float VBAT = 0;
 
 uint8_t tmp_lis2mdl;
 SensorAxes_t tmp_mag;
@@ -373,8 +374,8 @@ int32_t BytesToWrite;
   DumpBlueNRG_Handles();
   
   /* Read initial value of Pressure and Temperature for Altitude estimation */ 
-  BSP_PRESSURE_Get_Press(LPS22HB_P_0_handle, (float *)&press_zero_level);      /* Read the Pressure level when arming (0m reference) for altitude calculation */
-  BSP_TEMPERATURE_Get_Temp(LPS22HB_T_0_handle, (float *)&temperature);         /* Read the Temperature when arming (0m reference) for altitude calculation */
+  BSP_PRESSURE_Get_Press(LPS22HB_P_0_handle, &press_zero_level);      /* Read the Pressure level when arming (0m reference) for altitude calculation */
+  BSP_TEMPERATURE_Get_Temp(LPS22HB_T_0_handle, &temperature);         /* Read the Temperature when arming (0m reference) for altitude calculation */
   
   
   /* USER CODE END 2 */
@@ -874,11 +875,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   if(sensor_init_cali == 0)
   {
     sensor_init_cali_count++;
-
+    memset(&acc, 0, sizeof(acc));
+    memset(&gyro, 0, sizeof(gyro));
+    memset(&mag, 0, sizeof(mag));
+    press = 0.0f;
     if(sensor_init_cali_count > 800)
     {
       // Read sensor data and prepare for specific coodinate system
-      ReadSensorRawData(LSM6DSL_X_0_handle, LSM6DSL_G_0_handle, LIS2MDL_M_0_handle, LPS22HB_P_0_handle, &acc, &gyro, &mag, (float *)&press);
+      ReadSensorRawData(LSM6DSL_X_0_handle, LSM6DSL_G_0_handle, LIS2MDL_M_0_handle, LPS22HB_P_0_handle,
+			&acc, &gyro, &mag, &press);
 
       acc_off_calc.AXIS_X += acc.AXIS_X;
       acc_off_calc.AXIS_Y += acc.AXIS_Y;
@@ -917,7 +922,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     tim9_cnt2++;
 
     // Read sensor data and prepare for specific coodinate system
-    ReadSensorRawData(LSM6DSL_X_0_handle, LSM6DSL_G_0_handle, LIS2MDL_M_0_handle, LPS22HB_P_0_handle, &acc, &gyro, &mag, (float *)&press);
+    ReadSensorRawData(LSM6DSL_X_0_handle, LSM6DSL_G_0_handle, LIS2MDL_M_0_handle, LPS22HB_P_0_handle,
+		      &acc, &gyro, &mag, &press);
     
     if (rc_cal_flag == 1)
     {
@@ -1350,7 +1356,7 @@ static void SendBattEnvData(void)
     hci_read_rssi(&conn_handle, &rssi);
     RSSIToSend = (int16_t)rssi*10;
     
-    Batt_Env_RSSI_Update(PressToSend,BattToSend,(int16_t) TempToSend,RSSIToSend ); 
+    Batt_Env_RSSI_Update(PressToSend, BattToSend, TempToSend, RSSIToSend );
       
 }
 

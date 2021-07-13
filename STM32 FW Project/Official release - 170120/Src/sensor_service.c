@@ -612,7 +612,7 @@ tBleStatus Batt_Env_RSSI_Update(int32_t Press,uint16_t Batt,int16_t Temp,int16_t
 
   STORE_LE_16(buff+BuffPos,RSSI);
   BuffPos+=2;
-  
+
   ret = aci_gatt_update_char_value(HWServW2STHandle, EnvironmentalCharHandle, 0, 2+4+2+2+2,buff);
 
   if (ret != BLE_STATUS_SUCCESS){

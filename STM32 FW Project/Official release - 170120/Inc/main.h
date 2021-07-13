@@ -50,8 +50,8 @@
 /* USER CODE END Includes */
 
 /* Exported macro ------------------------------------------------------------*/
-#define MCR_BLUEMS_F2I_1D(in, out_int, out_dec) {out_int = (int32_t)in; out_dec= (int32_t)((in-out_int)*10);};
-#define MCR_BLUEMS_F2I_2D(in, out_int, out_dec) {out_int = (int32_t)in; out_dec= (int32_t)((in-out_int)*100);};
+#define MCR_BLUEMS_F2I_1D(in, out_int, out_dec) do {out_int = (int32_t)in; out_dec= (int32_t)((in-out_int)*10);} while(0)
+#define MCR_BLUEMS_F2I_2D(in, out_int, out_dec) do {out_int = (int32_t)in; out_dec= (int32_t)((in-out_int)*100);} while(0)
 
 
 /* Private define ------------------------------------------------------------*/
@@ -242,7 +242,7 @@ for each packet used for Console Service */
 //static int HCI_ProcessEvent=0;
 //static volatile uint32_t HCI_ProcessEvent=0;
 extern volatile uint32_t HCI_ProcessEvent;  
-#define MCR_BLUEMS_F2I_2D(in, out_int, out_dec) {out_int = (int32_t)in; out_dec= (int32_t)((in-out_int)*100);};
+//#define MCR_BLUEMS_F2I_2D(in, out_int, out_dec) {out_int = (int32_t)in; out_dec= (int32_t)((in-out_int)*100);};
 
 
 /* USER CODE END Private defines */
