@@ -279,7 +279,7 @@ tBleStatus Term_Update(uint8_t *data,uint8_t length)
 
     ret = aci_gatt_update_char_value(ConsoleW2STHandle, TermCharHandle, 0, DataToSend , data+Offset);
     if (ret != BLE_STATUS_SUCCESS) {
-        PRINTF("Error Updating Stdout Char\r\n");
+        usartPrintf("Error Updating Stdout Char\r\n");
       return BLE_STATUS_ERROR;
     }
     HAL_Delay(20);

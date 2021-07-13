@@ -8,7 +8,7 @@
 extern UART_HandleTypeDef huart1;
 
 #ifdef DEBUG
-int myprintf(const char *format, ...)
+int usartPrintf(const char *format, ...)
 {
     va_list arg;
     va_start(arg, format);
