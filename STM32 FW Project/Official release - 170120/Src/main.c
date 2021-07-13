@@ -188,11 +188,11 @@ Gyro_Rad gyro_rad, gyro_degree, gyro_cali_degree;
 MotorControlTypeDef motor_pwm;
 int count1 = 0, count2 = 0;
 AHRS_State_TypeDef ahrs;
-float press, press_zero_level;
-float temperature;
+volatile float press, press_zero_level;
+volatile float temperature;
 
 uint32_t VBAT_Sense;
-float VBAT = 0;
+volatile float VBAT = 0;
 
 uint8_t tmp_lis2mdl;
 SensorAxes_t tmp_mag;
@@ -373,8 +373,8 @@ int32_t BytesToWrite;
   DumpBlueNRG_Handles();
   
   /* Read initial value of Pressure and Temperature for Altitude estimation */ 
-  BSP_PRESSURE_Get_Press(LPS22HB_P_0_handle, &press_zero_level);      /* Read the Pressure level when arming (0m reference) for altitude calculation */
-  BSP_TEMPERATURE_Get_Temp(LPS22HB_T_0_handle, &temperature);         /* Read the Temperature when arming (0m reference) for altitude calculation */
+  BSP_PRESSURE_Get_Press(LPS22HB_P_0_handle, (float *)&press_zero_level);      /* Read the Pressure level when arming (0m reference) for altitude calculation */
+  BSP_TEMPERATURE_Get_Temp(LPS22HB_T_0_handle, (float *)&temperature);         /* Read the Temperature when arming (0m reference) for altitude calculation */
   
   
   /* USER CODE END 2 */
@@ -878,7 +878,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     if(sensor_init_cali_count > 800)
     {
       // Read sensor data and prepare for specific coodinate system
-      ReadSensorRawData(LSM6DSL_X_0_handle, LSM6DSL_G_0_handle, LIS2MDL_M_0_handle, LPS22HB_P_0_handle, &acc, &gyro, &mag, &press);
+      ReadSensorRawData(LSM6DSL_X_0_handle, LSM6DSL_G_0_handle, LIS2MDL_M_0_handle, LPS22HB_P_0_handle, &acc, &gyro, &mag, (float *)&press);
 
       acc_off_calc.AXIS_X += acc.AXIS_X;
       acc_off_calc.AXIS_Y += acc.AXIS_Y;
@@ -917,7 +917,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     tim9_cnt2++;
 
     // Read sensor data and prepare for specific coodinate system
-    ReadSensorRawData(LSM6DSL_X_0_handle, LSM6DSL_G_0_handle, LIS2MDL_M_0_handle, LPS22HB_P_0_handle, &acc, &gyro, &mag, &press);
+    ReadSensorRawData(LSM6DSL_X_0_handle, LSM6DSL_G_0_handle, LIS2MDL_M_0_handle, LPS22HB_P_0_handle, &acc, &gyro, &mag, (float *)&press);
     
     if (rc_cal_flag == 1)
     {
@@ -1336,9 +1336,9 @@ static void SendBattEnvData(void)
             //PRINTF("Battery voltage = %fV\n\n", VBAT);
         }
     HAL_ADC_Stop(&hadc1);
-    
     MCR_BLUEMS_F2I_2D(press, intPart, decPart);
     PressToSend=intPart*100+decPart;
+
     MCR_BLUEMS_F2I_1D(((int32_t)((float)VBAT*100.0f)/4.2f), intPart, decPart);
     BattToSend = intPart*10+decPart;
     if (BattToSend > 1000){
