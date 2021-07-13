@@ -281,9 +281,9 @@ int32_t BytesToWrite;
   MX_TIM9_Init();
   MX_USART1_UART_Init();
   //MX_USB_DEVICE_Init();
- 
-  /* USER CODE BEGIN 2 */
+  initDebug();
 
+  /* USER CODE BEGIN 2 */
   PRINTF("STEVAL-FCU001V1 FW rev.1.0 - Sep 2017\n\n");
   
 //  Initialize Onboard LED

@@ -50,11 +50,13 @@
 //#define DEBUG
 #ifdef DEBUG
 #include <stdio.h>
-#define PRINTF(...) myprintf(__VA_ARGS__)
+#define PRINTF(...) printf(__VA_ARGS__)
 int myprintf(const char *format, ...);
-int usart_puts(const char *str, int len) ;
+int usart_puts(const char *str, int len);
+void initDebug(void);
 #else
 #define PRINTF(...)
+#define initDebug /* nothing */
 #endif
 
 /* Print the data travelling over the SPI in the .csv format for the GUI*/
