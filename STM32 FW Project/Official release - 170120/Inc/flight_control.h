@@ -19,7 +19,7 @@
  */
 #ifdef MOTOR_DC
 #ifdef REMOCON_BLE
-  #define MIN_THR		20	/* BLE Remocon sends gTHR 0 - 388 */
+  #define MIN_THR		13	/* BLE Remocon sends gTHR 0 - 388, step 13 */
 #else
   #define MIN_THR              200              /* DC motor configuration, it was 200 */
 #endif

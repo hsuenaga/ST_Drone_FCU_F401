@@ -252,7 +252,13 @@ void FlightControlPID_innerLoop(EulerAngleTypeDef *euler_rc, Gyro_Rad *gyro_rad,
 #ifdef MOTOR_DC
 
 #ifdef REMOCON_BLE
-  motor_thr = ((int16_t) (4.706f*(float)gTHR + 100.0f));           //Remocon BLE >> 100 to 1700, gTHR: 0 to 338
+#define _MAX_THR 1700.0f
+#define _MIN_THR 400.0f
+#define _RANGE_THR 338.0f
+  motor_thr = ((int16_t) ((_MAX_THR - _MIN_THR)/_RANGE_THR*(float)gTHR + _MIN_THR));           //Remocon BLE >> 400 to 1700, gTHR: 0 to 338
+#undef _MAX_THR
+#undef _MIN_THR
+#undef _RANGE_THR
 #else
   motor_thr = ((int16_t) (0.05f*(float)gTHR + 633.333f));           //Remocon Devo7E >> 630 to 1700
   //motor_thr =((int16_t) (0.333f*(float)gTHR + 633.33f));           //Remocon Devo7E >> 630 to 1700
