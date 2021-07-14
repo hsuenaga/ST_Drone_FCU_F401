@@ -875,10 +875,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   if(sensor_init_cali == 0)
   {
     sensor_init_cali_count++;
-    memset(&acc, 0, sizeof(acc));
-    memset(&gyro, 0, sizeof(gyro));
-    memset(&mag, 0, sizeof(mag));
-    press = 0.0f;
     if(sensor_init_cali_count > 800)
     {
       // Read sensor data and prepare for specific coodinate system
